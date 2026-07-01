@@ -1,0 +1,58 @@
+name: Release (latest)
+
+# Keep a single rolling "latest" prerelease whose jar is the freshest build on
+# main. No cron: since the version *is* the commit, a timed rebuild would just
+# reproduce the same jar — the release only changes when a commit does.
+on:
+  push:
+    branches: [ main ]
+
+# Don't let overlapping pushes clobber the release; newest wins.
+concurrency:
+  group: release-latest
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build
+        run: ./gradlew build --no-daemon --stacktrace
+
+      # Stable asset name so the download URL never changes; the commit-derived
+      # version still lives in the jar's plugin.yml and build-info.properties.
+      - name: Stage stable-named jar
+        run: cp build/libs/Limbo-*.jar Limbo-latest.jar
+
+      - name: Update rolling latest release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest build
+          prerelease: true
+          files: Limbo-latest.jar
+          body: |
+            Rolling build of the latest commit on `main`.
+
+            - Commit: `${{ github.sha }}`
+            - Ref: `${{ github.ref_name }}`
+
+            The jar's internal version (`<yyyy.MM.dd>+<short-sha>`) identifies the exact build.
