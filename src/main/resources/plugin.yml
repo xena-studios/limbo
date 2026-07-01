@@ -1,10 +1,10 @@
-name: Limbo
+name: xLimbo
 version: '${version}'
-main: co.xenastudios.limbo.LimboPlugin
+main: co.xenastudios.xlimbo.XLimboPlugin
 api-version: '1.18'
 author: Xena Studios
 description: Rock-solid fallback void sandbox for Minecraft networks.
-website: https://github.com/xena-studios/limbo
+website: https://github.com/xena-studios/xlimbo
 # Load early so the fallback world is ready before players are routed here.
 load: STARTUP
 
@@ -12,14 +12,14 @@ commands:
   join:
     description: Send yourself back to the main server via the proxy.
     usage: /join
-  limbo:
-    description: Limbo admin command (reload/info).
-    usage: /limbo <reload|info>
+  xlimbo:
+    description: xLimbo admin command (reload/info).
+    usage: /xlimbo <reload|info>
 
 permissions:
-  limbo.join:
+  xlimbo.join:
     description: Allows use of /join to connect to the main server.
     default: true
-  limbo.admin:
-    description: Allows use of /limbo admin subcommands (reload/info).
+  xlimbo.admin:
+    description: Allows use of /xlimbo admin subcommands (reload/info).
     default: op

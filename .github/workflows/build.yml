@@ -31,6 +31,6 @@ jobs:
       - name: Upload jar artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: Limbo-jar
-          path: build/libs/Limbo-*.jar
+          name: xLimbo-jar
+          path: build/libs/xLimbo-*.jar
           if-no-files-found: error
