@@ -104,8 +104,8 @@ public final class ConfigLoader {
                 bool("world.reset-on-startup", false),
                 clampDouble("world.border.size", 10000, 16, 59_999_968),
                 Math.max(0, intVal("world.border.spawn-radius", 4000)),
-                intVal("world.view-distance", 4),
-                intVal("world.simulation-distance", 4)
+                clampViewDistance("world.view-distance", 4),
+                clampViewDistance("world.simulation-distance", 4)
         );
         world = clampSpawnToBorder(world);
 
@@ -173,7 +173,7 @@ public final class ConfigLoader {
                 )
         );
 
-        return new Settings(CONFIG_VERSION, world, player, join, messages,
+        return new Settings(world, player, join, messages,
                 mainServer, autoJoin, joinCommand, actionBar, protections);
     }
 
@@ -198,6 +198,23 @@ public final class ConfigLoader {
 
     private int intVal(String path, int def) {
         return cfg.getInt(path, def);
+    }
+
+    /**
+     * View/simulation distance: a value {@code < 2} means "leave the server default"
+     * (see config.yml, {@code -1}). Any other value is clamped to Paper's accepted
+     * {@code [2, 32]} range so a misconfiguration can't blow up the chunk footprint.
+     */
+    private int clampViewDistance(String path, int def) {
+        int v = intVal(path, def);
+        if (v < 2) {
+            return v;
+        }
+        if (v > 32) {
+            warn(path, v, 32, "out of range [2, 32]");
+            return 32;
+        }
+        return v;
     }
 
     private int clampInt(String path, int def, int min, int max) {
@@ -240,6 +257,12 @@ public final class ConfigLoader {
         Material m = Material.matchMaterial(raw.trim());
         if (m == null || !m.isBlock()) {
             warn(path, raw, def.name(), "not a valid block material");
+            return def;
+        }
+        if (!m.isSolid()) {
+            // The floor must be something players stand on; AIR / flowers / torches
+            // would silently remove the safety floor.
+            warn(path, raw, def.name(), "not a solid block (players would fall through)");
             return def;
         }
         return m;
@@ -303,7 +326,7 @@ public final class ConfigLoader {
                 true, true, true, true, true, true, true, true,
                 new Settings.Protections.Entities(true, 300),
                 new Settings.Protections.BuildGuard(false, 30));
-        return new Settings(CONFIG_VERSION, world, player, join, messages,
+        return new Settings(world, player, join, messages,
                 "main", autoJoin, joinCommand, actionBar, protections);
     }
 }

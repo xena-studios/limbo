@@ -76,6 +76,9 @@ public final class LimboCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (!sender.hasPermission(PERMISSION)) {
+            return List.of();
+        }
         if (args.length == 1) {
             String prefix = args[0].toLowerCase();
             return SUBCOMMANDS.stream().filter(c -> c.startsWith(prefix)).toList();

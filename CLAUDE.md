@@ -26,7 +26,7 @@ code quality**.
 - `config/` — `Settings` (immutable snapshot + pre-parsed MiniMessage), `ConfigLoader`
   (validate + migrate + version).
 - `world/` — `VoidChunkGenerator`, `VoidBiomeProvider`, `WorldManager`.
-- `player/` — `JoinListener`, `SpawnLocator`, `AutoJoinScheduler`.
+- `player/` — `JoinListener`, `SpawnLocator`, `AutoJoinScheduler`, `MessageListener`.
 - `protection/` — one small toggled listener per exploit vector.
 - `command/` — `JoinCommand`, `LimboCommand`, `CooldownManager`.
 - `task/` — `ActionBarTask` + task tracking.
@@ -53,6 +53,10 @@ Initial build is complete and pushed to `main`: full plugin, unit tests, CI (`bu
   recreates the release each run so its published timestamp reflects the newest build.
 - `/join` base command is in `plugin.yml`; configured aliases are registered at enable via the
   server CommandMap (fail-safe). Alias changes therefore need a restart, not just `/limbo reload`.
+- `/limbo reload` re-applies settings to the **already-loaded** world (`applySettings`) and never
+  calls `createWorld`/`safeReset` on the tick. Consequently `world.name`, `world.floor-y` and
+  `world.floor-block` are restart-only (the world + generator are fixed at creation); a live
+  `world.name` change is logged and ignored rather than orphaning players in the old world.
 - `.idea/` is untracked and gitignored.
 
 ## Follow-ups (not required by the brief)

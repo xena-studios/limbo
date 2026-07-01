@@ -20,7 +20,8 @@ world:
   floor-block: "GLASS"
   # Y level of the floor layer. Players are spawned one block above it.
   floor-y: 64
-  # Ephemeral world: never save to disk (recommended true — keeps disk flat).
+  # Ephemeral world: keep this false so nothing is ever saved to disk
+  # (recommended — keeps disk usage flat). Set true only if you want it to persist.
   auto-save: false
   # Delete the world folder on startup so limbo resets between restarts.
   # Done safely and non-blocking; disabled by default to be conservative.
@@ -116,7 +117,7 @@ protections:
   # Block placement of gravity blocks (sand/gravel/anvil/concrete powder)
   # and cancel any block -> falling-entity conversion.
   gravity-blocks: true
-  # Disable fire tick + cancel ignition and spread.
+  # Disable fire tick + cancel ignition, spread and burn.
   fire: true
   # Disable explosions (block + entity).
   explosions: true
@@ -129,7 +130,7 @@ protections:
 
   entities:
     # Block placing/spawning entity-heavy items that accumulate: armor stands,
-    # boats, minecarts, item frames, paintings, spawn eggs.
+    # boats, minecarts, item frames, paintings, end crystals, spawn eggs.
     block-entity-items: true
     # Periodically remove stray non-player entities. 0 disables the sweep.
     cleanup-interval-seconds: 300

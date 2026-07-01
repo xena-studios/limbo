@@ -15,7 +15,6 @@ import java.util.List;
  * are parsed on their (rare) invocation.
  */
 public record Settings(
-        int configVersion,
         World world,
         Player player,
         Join join,
