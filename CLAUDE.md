@@ -42,6 +42,21 @@ code quality**.
   spawn chunks not kept loaded, spread chunks not persisted.
 
 ## Status
-See `PROGRESS.md` for the live build checklist / what's done vs. remaining.
+Initial build is complete and pushed to `main`: full plugin, unit tests, CI (`build.yml` +
+`release.yml`), README, and config. CI is green; the rolling `latest` release is a normal
+(non-prerelease) release with a stable `Limbo-latest.jar` asset.
 
-Remote: `git@github.com:xena-studios/limbo.git`.
+## Decisions log
+- Floor is a single glass layer at a configurable Y (default 64); players spawn at floorY+1.
+- Rolling release uses a stable asset name `Limbo-latest.jar`; the commit-derived version lives in
+  the jar (plugin.yml / build-info.properties / `/limbo info`). The release workflow deletes +
+  recreates the release each run so its published timestamp reflects the newest build.
+- `/join` base command is in `plugin.yml`; configured aliases are registered at enable via the
+  server CommandMap (fail-safe). Alias changes therefore need a restart, not just `/limbo reload`.
+- `.idea/` is untracked and gitignored.
+
+## Follow-ups (not required by the brief)
+- No config-validation unit tests (would need MockBukkit); spawn math + cooldown are covered.
+- Not yet smoke-tested on a live 1.18.2 / latest Paper server before production use.
+
+Remote: `git@github.com:xena-studios/limbo.git` (push over gh HTTPS; SSH key isn't authorized).
