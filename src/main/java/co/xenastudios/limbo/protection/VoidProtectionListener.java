@@ -35,9 +35,14 @@ public final class VoidProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
-        int threshold = plugin.settings().protections().voidRescue().thresholdY();
+        Settings.Protections.Void cfg = plugin.settings().protections().voidRescue();
+        // The listener may be registered purely to cancel void damage; only the
+        // move-based rescue is gated by the rescue toggle.
+        if (!cfg.enabled()) {
+            return;
+        }
         // Fast path: most moves are well above the threshold.
-        if (event.getTo().getY() >= threshold) {
+        if (event.getTo().getY() >= cfg.thresholdY()) {
             return;
         }
         Player player = event.getPlayer();

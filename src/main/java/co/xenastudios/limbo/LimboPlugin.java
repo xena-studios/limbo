@@ -22,6 +22,7 @@ import co.xenastudios.limbo.proxy.ProxyConnector;
 import co.xenastudios.limbo.task.ActionBarTask;
 import co.xenastudios.limbo.world.WorldManager;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.generator.BiomeProvider;
@@ -31,6 +32,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -104,11 +106,25 @@ public final class LimboPlugin extends JavaPlugin {
     public boolean reload() {
         try {
             Settings fresh = ConfigLoader.load(this);
+            World current = this.limboWorld;
+
+            // world.name is effectively restart-only: creating a second world here would
+            // block the tick and orphan players in the old (now-unprotected) world.
+            if (current != null && !current.getName().equalsIgnoreCase(fresh.world().name())) {
+                getLogger().warning("Config 'world.name' changed ('" + current.getName() + "' -> '"
+                        + fresh.world().name() + "'); this requires a restart. Keeping the current world.");
+            }
+
             this.settings = fresh; // atomic swap — in-flight reads see old or new, never partial
 
-            // Re-apply world settings and refresh the cached world reference.
-            World world = worldManager.ensureWorld(fresh);
-            this.limboWorld = world;
+            // Re-apply settings to the already-loaded world; never create or reset on the
+            // tick. (floor-y / floor-block changes still need a restart — the generator is
+            // fixed at world creation.)
+            if (current != null) {
+                worldManager.applySettings(current, fresh);
+            } else {
+                this.limboWorld = worldManager.ensureWorld(fresh);
+            }
 
             // Rebuild listeners + tasks so disabled features are torn down and
             // enabled ones pick up new values. Cancel pending auto-joins since
@@ -117,6 +133,14 @@ public final class LimboPlugin extends JavaPlugin {
             unregisterListeners();
             autoJoinScheduler.cancelAll();
             registerFeatures();
+
+            // Re-arm auto-join for players already waiting in limbo (cancelAll cleared
+            // them); schedule() self-guards when auto-join is disabled.
+            for (Player player : getServer().getOnlinePlayers()) {
+                if (isLimboWorld(player.getWorld())) {
+                    autoJoinScheduler.schedule(player);
+                }
+            }
             return true;
         } catch (Throwable t) {
             getLogger().log(Level.SEVERE, "Reload failed; keeping previous state.", t);
@@ -150,56 +174,73 @@ public final class LimboPlugin extends JavaPlugin {
         Settings.Protections p = s.protections();
 
         // Core: player state + join flow (always on) and message suppression.
-        register(new JoinListener(this));
-        register(new MessageListener(this));
+        register(() -> new JoinListener(this));
+        register(() -> new MessageListener(this));
 
         if (p.floor()) {
-            register(new FloorProtectionListener(this));
+            register(() -> new FloorProtectionListener(this));
         }
-        if (p.voidRescue().enabled()) {
-            register(new VoidProtectionListener(this));
+        // Void rescue and void/fall-damage cancellation share one listener; register it
+        // if either is enabled (the move-rescue self-guards when rescue is disabled).
+        if (p.voidRescue().enabled() || p.voidRescue().cancelVoidDamage()) {
+            register(() -> new VoidProtectionListener(this));
         }
         if (p.portals()) {
-            register(new PortalProtectionListener(this));
+            register(() -> new PortalProtectionListener(this));
         }
         if (p.liquids()) {
-            register(new LiquidProtectionListener(this));
+            register(() -> new LiquidProtectionListener(this));
         }
         if (p.gravityBlocks()) {
-            register(new GravityBlockListener(this));
+            register(() -> new GravityBlockListener(this));
         }
         if (p.fire()) {
-            register(new FireProtectionListener(this));
+            register(() -> new FireProtectionListener(this));
         }
         if (p.entities().blockEntityItems()) {
-            register(new EntityProtectionListener(this));
+            register(() -> new EntityProtectionListener(this));
         }
         if (p.buildGuard().enabled()) {
-            register(new BuildGuardListener(this));
+            register(() -> new BuildGuardListener(this));
         }
         // Explosions / mob-spawns / redstone / item-drops share one listener,
         // each guarded by its own toggle inside.
         if (p.explosions() || p.mobSpawns() || p.redstone() || p.itemDrops()) {
-            register(new MiscProtectionListener(this));
+            register(() -> new MiscProtectionListener(this));
         }
 
         // Tasks.
         if (s.actionBar().enabled()) {
-            schedule(new ActionBarTask(this).start());
+            schedule(() -> new ActionBarTask(this).start());
         }
         if (p.entities().cleanupIntervalSeconds() > 0) {
-            schedule(new EntityCleanupTask(this).start());
+            schedule(() -> new EntityCleanupTask(this).start());
         }
     }
 
-    private void register(Listener listener) {
-        getServer().getPluginManager().registerEvents(listener, this);
-        registeredListeners.add(listener);
+    /**
+     * Construct + register one listener, guarded so a single failing feature is
+     * logged and skipped rather than aborting the whole (re)build.
+     */
+    private void register(Supplier<Listener> factory) {
+        try {
+            Listener listener = factory.get();
+            getServer().getPluginManager().registerEvents(listener, this);
+            registeredListeners.add(listener);
+        } catch (Throwable t) {
+            getLogger().log(Level.WARNING, "Failed to register a feature listener (skipped).", t);
+        }
     }
 
-    private void schedule(BukkitTask task) {
-        if (task != null) {
-            tasks.add(task);
+    /** Construct + track one task, guarded the same way as {@link #register}. */
+    private void schedule(Supplier<BukkitTask> factory) {
+        try {
+            BukkitTask task = factory.get();
+            if (task != null) {
+                tasks.add(task);
+            }
+        } catch (Throwable t) {
+            getLogger().log(Level.WARNING, "Failed to schedule a feature task (skipped).", t);
         }
     }
 
