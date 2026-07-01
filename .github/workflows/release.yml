@@ -47,7 +47,8 @@ jobs:
         with:
           tag_name: latest
           name: Latest build
-          prerelease: true
+          prerelease: false
+          make_latest: true
           files: Limbo-latest.jar
           body: |
             Rolling build of the latest commit on `main`.
