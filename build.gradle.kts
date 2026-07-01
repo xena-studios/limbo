@@ -1,6 +1,4 @@
 import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 plugins {
@@ -11,9 +9,13 @@ plugins {
 group = "co.xenastudios"
 
 /**
- * Version identity is derived from git at build time — there are no semantic-version
- * releases. Scheme: <yyyy.MM.dd>+<short-sha>. If git is unavailable (e.g. a source
- * export with no history) we fall back to a stable placeholder so the build never fails.
+ * Version identity is semantic and driven by git tags (`vMAJOR.MINOR.PATCH`).
+ *
+ *  - Building the exact commit a `v*` tag points at  -> clean release, e.g. `1.2.0`.
+ *  - Building any commit after the latest tag         -> nightly pre-release,
+ *    e.g. `1.2.0-nightly.3+ab12cd34` (`<latest-tag>-nightly.<commits-since>+<sha>`).
+ *  - No tags yet (or git unavailable)                 -> `0.0.0-nightly.<count>+<sha>`,
+ *    so the build never fails on a fresh clone or a source export with no history.
  */
 fun git(vararg args: String): String = runCatching {
     val process = ProcessBuilder(listOf("git") + args)
@@ -26,10 +28,25 @@ fun git(vararg args: String): String = runCatching {
 
 val shortSha: String = git("rev-parse", "--short=8", "HEAD").ifEmpty { "nogit" }
 val fullSha: String = git("rev-parse", "HEAD").ifEmpty { "unknown" }
-val buildDate: String = LocalDate.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
 val buildTimestamp: String = DateTimeFormatter.ISO_INSTANT.format(Instant.now())
 
-version = "$buildDate+$shortSha"
+/** Resolve a semantic version string from the git tag graph. */
+val semanticVersion: String = run {
+    // `git describe` reports "<tag>-<commits-since>-g<sha>" (commits-since is 0 on a tag).
+    val described = git("describe", "--tags", "--long", "--match", "v*")
+    val match = Regex("""^v?(.+)-(\d+)-g[0-9a-f]+$""").matchEntire(described)
+    if (match != null) {
+        val (base, commitsSince) = match.destructured
+        if (commitsSince.toInt() == 0) base            // exactly on a tag -> clean release
+        else "$base-nightly.$commitsSince+$shortSha"   // ahead of the tag -> nightly
+    } else {
+        // No matching tag yet: count commits so successive nightlies still sort.
+        val count = git("rev-list", "--count", "HEAD").ifEmpty { "0" }
+        "0.0.0-nightly.$count+$shortSha"
+    }
+}
+
+version = semanticVersion
 
 java {
     toolchain {
@@ -81,7 +98,7 @@ tasks.processResources {
 
 tasks.shadowJar {
     archiveClassifier.set("")
-    archiveBaseName.set("Limbo")
+    archiveBaseName.set("xLimbo")
     // Nothing to relocate today (MiniMessage is provided by Paper) but shadow gives us a
     // single, predictable runnable jar and room to shade later without changing the build.
 }
