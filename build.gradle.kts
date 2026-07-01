@@ -48,6 +48,9 @@ dependencies {
     // Paper API — provided by the server at runtime; bundles Adventure + MiniMessage.
     compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
 
+    // Available in tests so classes that reference Bukkit types resolve; the
+    // unit tests themselves only exercise server-free logic.
+    testImplementation("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
