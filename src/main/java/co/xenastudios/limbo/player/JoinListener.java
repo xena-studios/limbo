@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -55,8 +56,11 @@ public final class JoinListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        // Clean up any pending auto-connect so it never fires for an offline player.
-        plugin.autoJoinScheduler().cancel(event.getPlayer().getUniqueId());
+        UUID id = event.getPlayer().getUniqueId();
+        // Clean up any pending auto-connect so it never fires for an offline player,
+        // and drop the cooldown entry so the map can't grow without bound.
+        plugin.autoJoinScheduler().cancel(id);
+        plugin.cooldownManager().clear(id);
     }
 
     /** Force creative + flight so a player can never end up in the void without flight. */
