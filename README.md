@@ -57,8 +57,8 @@ single player action can lag, crash, grief or escape the sandbox.
 
 ### Downloads
 
-- **Latest build:** https://github.com/xena-studios/limbo/releases/tag/latest — a rolling
-  prerelease whose `Limbo-latest.jar` always points at the newest commit on `main`.
+- **Latest build:** https://github.com/xena-studios/limbo/releases/latest — a rolling
+  release whose `Limbo-latest.jar` always points at the newest commit on `main`.
 - **Per-commit builds:** every push and PR uploads the jar as a workflow artifact under the
   repository's **Actions** tab.
 

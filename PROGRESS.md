@@ -28,11 +28,11 @@ original build brief for full requirements.
 - [x] `README.md` (features, install, full config reference, server tuning, proxy security note,
       "how it stays fast & stable").
 
-## Blocked / needs user action
-- [ ] **Push the CI + README/docs commits.** The `.github/workflows/*` files require the `workflow`
-      OAuth scope, which the current `gh` token lacks. Fix once with:
-      `gh auth refresh -h github.com -s workflow`  then  `git push`.
-      (All non-workflow commits through `d9ec703` are already pushed to `main`.)
+## Shipped
+- All commits pushed to `main`; CI `Build` + `Release (latest)` workflows verified green.
+- Rolling `latest` release is a normal (non-prerelease) release with stable asset
+  `Limbo-latest.jar`; it is the repo's headline "Latest release".
+- `.idea/` is untracked/gitignored (IDE files kept out of the repo).
 
 ## Possible follow-ups (not required by the brief)
 - No config-validation unit tests (would need MockBukkit); spawn math + cooldown are covered.
