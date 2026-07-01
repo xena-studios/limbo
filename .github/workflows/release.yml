@@ -1,8 +1,8 @@
 name: Release (latest)
 
-# Keep a single rolling "latest" prerelease whose jar is the freshest build on
-# main. No cron: since the version *is* the commit, a timed rebuild would just
-# reproduce the same jar — the release only changes when a commit does.
+# Keep a single rolling "latest" release whose jar is the freshest build on main.
+# No cron: since the version *is* the commit, a timed rebuild would just reproduce
+# the same jar — the release only changes when a commit does.
 on:
   push:
     branches: [ main ]
@@ -42,7 +42,15 @@ jobs:
       - name: Stage stable-named jar
         run: cp build/libs/Limbo-*.jar Limbo-latest.jar
 
-      - name: Update rolling latest release
+      # Delete the previous release + tag so the recreated one below gets a fresh
+      # published timestamp (a plain update keeps the original date) and the
+      # `latest` tag moves to this commit.
+      - name: Clear previous latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release delete latest --yes --cleanup-tag || true
+
+      - name: Create rolling latest release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
