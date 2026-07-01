@@ -27,8 +27,9 @@ single player action can lag, crash, grief or escape the sandbox.
 - **Optional action bar** — repeating hint (component parsed once, reused each cycle).
 - **Message control** — suppress join/quit/death broadcasts; optional custom join message and
   chat clear. All text is MiniMessage and fully configurable.
-- **`/limbo reload` / `/limbo info`** — reload re-reads and re-validates config and re-applies live,
-  no restart needed.
+- **`/limbo reload` / `/limbo info`** — reload re-reads and re-validates config and re-applies live.
+  A few settings are restart-only: `join-command.aliases`, `world.name`, `world.floor-y` and
+  `world.floor-block` (the world/generator is fixed at creation).
 - **Exploit resistance** (all individually toggleable, safe defaults on): unbreakable floor, void
   rescue, blocked portals, no liquids, no gravity blocks, no fire, no explosions, no mob spawns,
   no redstone, no item drops, entity-item blocking + periodic cleanup, and an optional build-rate
@@ -51,7 +52,8 @@ single player action can lag, crash, grief or escape the sandbox.
 
 1. Grab a jar (see **Downloads** below) and drop it in your Limbo server's `plugins/` folder.
 2. Start the server once — Limbo creates the `limbo` world and writes a default `config.yml`.
-3. Edit `plugins/Limbo/config.yml` to taste, then run `/limbo reload` (no restart needed).
+3. Edit `plugins/Limbo/config.yml` to taste, then run `/limbo reload` (most settings apply live;
+   aliases, `world.name`, `floor-y` and `floor-block` need a restart).
 4. Point your proxy's fallback/limbo server at this instance and set `main-server` in the config to
    the proxy name of the server you want `/join` to send players to.
 
@@ -117,7 +119,7 @@ disables itself over config.
 | `protections.mob-spawns` | `true` | Cancel natural mob spawns. |
 | `protections.redstone` | `true` | Disable redstone activity. |
 | `protections.item-drops` | `true` | Cancel player item drops. |
-| `protections.entities.block-entity-items` | `true` | Block armor stands, boats, minecarts, frames, paintings, spawn eggs. |
+| `protections.entities.block-entity-items` | `true` | Block armor stands, boats, minecarts, frames, paintings, end crystals, spawn eggs. |
 | `protections.entities.cleanup-interval-seconds` | `300` | Periodic stray-entity sweep (0 = off). |
 | `protections.build-guard.enabled` | `false` | Cap per-player block placements/second. |
 | `protections.build-guard.max-places-per-second` | `30` | The cap (0 = unlimited). |
