@@ -1,12 +1,12 @@
 # ============================================================================
-#  Limbo — fallback void-sandbox plugin
+#  xLimbo — fallback void-sandbox plugin
 # ----------------------------------------------------------------------------
 #  Every feature is individually toggleable and every tunable has a safe
 #  default. Bad values fall back to the default with a warning in console —
 #  the plugin never disables itself or crashes over config. All player-facing
 #  text is MiniMessage: https://docs.advntr.dev/minimessage/format.html
 #
-#  Apply changes at runtime with:  /limbo reload
+#  Apply changes at runtime with:  /xlimbo reload
 # ============================================================================
 
 # Internal config version. DO NOT edit by hand — the plugin uses this to
@@ -14,8 +14,8 @@
 config-version: 1
 
 world:
-  # Name of the limbo world. Created automatically if it does not exist.
-  name: "limbo"
+  # Name of the xLimbo world. Created automatically if it does not exist.
+  name: "xlimbo"
   # Block that makes up the shared, unbreakable floor (one layer per chunk).
   floor-block: "GLASS"
   # Y level of the floor layer. Players are spawned one block above it.
@@ -23,7 +23,7 @@ world:
   # Ephemeral world: keep this false so nothing is ever saved to disk
   # (recommended — keeps disk usage flat). Set true only if you want it to persist.
   auto-save: false
-  # Delete the world folder on startup so limbo resets between restarts.
+  # Delete the world folder on startup so xLimbo resets between restarts.
   # Done safely and non-blocking; disabled by default to be conservative.
   reset-on-startup: false
 
@@ -50,7 +50,7 @@ join:
   # Suppress the vanilla join broadcast.
   suppress-join-message: true
   # Optional custom join message shown to the joining player. Empty = none.
-  custom-join-message: "<gray>Welcome to <aqua>Limbo</aqua>. Type <yellow>/join</yellow> to return to the server.</gray>"
+  custom-join-message: "<gray>Welcome to <aqua>xLimbo</aqua>. Type <yellow>/join</yellow> to return to the server.</gray>"
   # Clear the player's chat on join.
   clear-chat-on-join: false
 
@@ -81,7 +81,7 @@ join-command:
     - "server"
     - "lobby"
   # Permission required to use it (granted to everyone by default).
-  permission: "limbo.join"
+  permission: "xlimbo.join"
   # Per-player cooldown in seconds to stop proxy/command spam.
   cooldown-seconds: 3
   # Feedback messages.

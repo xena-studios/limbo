@@ -1,4 +1,4 @@
-# Limbo — Developer Context
+# xLimbo — Developer Context
 
 Fallback "limbo" server plugin for a proxied Minecraft network. When the main server is
 down, players are routed here into an empty void world (unbreakable glass floor, creative +
@@ -17,24 +17,27 @@ code quality**.
   modern `ChunkGenerator` hooks + `BiomeProvider` (1.17) *and* bundled MiniMessage (1.18.2),
   so nothing extra is shaded. Java-21 bytecode requires a Java-21 runtime.
 - Gradle Kotlin DSL + `com.gradleup.shadow`. Build: `./gradlew build` → shaded runnable jar in
-  `build/libs/Limbo-<yyyy.MM.dd>+<sha>.jar`.
-- Version is derived from git at build time; full SHA + timestamp injected into
-  `src/main/resources/build-info.properties` and `plugin.yml` via `processResources` `expand`.
+  `build/libs/xLimbo-<version>.jar`.
+- **Semantic versioning, git-tag driven.** A commit tagged `vX.Y.Z` builds to a clean version
+  (e.g. `1.2.0`); any commit after the latest tag builds to `<version>-nightly.<n>+<sha>`; with
+  no tags it falls back to `0.0.0-nightly.<count>+<sha>`. Full SHA + timestamp are injected into
+  `src/main/resources/build-info.properties` and the version into `plugin.yml` via
+  `processResources` `expand`.
 
-## Layout (`co.xenastudios.limbo`)
-- `LimboPlugin` — fail-safe enable/disable, wiring, atomic settings swap.
+## Layout (`co.xenastudios.xlimbo`)
+- `XLimboPlugin` — fail-safe enable/disable, wiring, atomic settings swap.
 - `config/` — `Settings` (immutable snapshot + pre-parsed MiniMessage), `ConfigLoader`
   (validate + migrate + version).
 - `world/` — `VoidChunkGenerator`, `VoidBiomeProvider`, `WorldManager`.
 - `player/` — `JoinListener`, `SpawnLocator`, `AutoJoinScheduler`, `MessageListener`.
 - `protection/` — one small toggled listener per exploit vector.
-- `command/` — `JoinCommand`, `LimboCommand`, `CooldownManager`.
+- `command/` — `JoinCommand`, `XLimboCommand`, `CooldownManager`.
 - `task/` — `ActionBarTask` + task tracking.
 - `proxy/` — `ProxyConnector` (BungeeCord `Connect` plugin message).
 
 ## Key design rules
 - No `getConfig()` / MiniMessage parse on any per-tick / per-chunk / per-event hot path — read
-  the immutable `Settings` snapshot, swapped atomically on `/limbo reload`.
+  the immutable `Settings` snapshot, swapped atomically on `/xlimbo reload`.
 - Async teleport (`teleportAsync`) after `getChunkAtAsync`; world create/reset must never block
   the tick or throw.
 - Register listeners / schedule tasks ONLY for enabled features.
@@ -42,18 +45,21 @@ code quality**.
   spawn chunks not kept loaded, spread chunks not persisted.
 
 ## Status
-Initial build is complete and pushed to `main`: full plugin, unit tests, CI (`build.yml` +
-`release.yml`), README, and config. CI is green; the rolling `latest` release is a normal
-(non-prerelease) release with a stable `Limbo-latest.jar` asset.
+Full plugin, unit tests, CI (`build.yml` + `nightly.yml` + `release.yml`), README, and config.
+The rolling `nightly` pre-release carries a stable `xLimbo-nightly.jar` asset built from `main`;
+semantic releases are cut by pushing a `vX.Y.Z` tag, which also publishes to Modrinth.
 
 ## Decisions log
 - Floor is a single glass layer at a configurable Y (default 64); players spawn at floorY+1.
-- Rolling release uses a stable asset name `Limbo-latest.jar`; the commit-derived version lives in
-  the jar (plugin.yml / build-info.properties / `/limbo info`). The release workflow deletes +
-  recreates the release each run so its published timestamp reflects the newest build.
+- Two release tracks: the `nightly` pre-release (stable asset name `xLimbo-nightly.jar`, rebuilt
+  from `main` on schedule/push, deleted + recreated each run for a fresh timestamp) and tag-driven
+  semantic releases (`vX.Y.Z`) that create a normal GitHub release and publish to Modrinth. The
+  resolved version lives in the jar (plugin.yml / build-info.properties / `/xlimbo info`).
+- Modrinth publishing is gated on a `MODRINTH_TOKEN` secret + `MODRINTH_PROJECT_ID` variable
+  (optional `MODRINTH_GAME_VERSIONS`, `MODRINTH_LOADERS`); the release step skips cleanly if unset.
 - `/join` base command is in `plugin.yml`; configured aliases are registered at enable via the
-  server CommandMap (fail-safe). Alias changes therefore need a restart, not just `/limbo reload`.
-- `/limbo reload` re-applies settings to the **already-loaded** world (`applySettings`) and never
+  server CommandMap (fail-safe). Alias changes therefore need a restart, not just `/xlimbo reload`.
+- `/xlimbo reload` re-applies settings to the **already-loaded** world (`applySettings`) and never
   calls `createWorld`/`safeReset` on the tick. Consequently `world.name`, `world.floor-y` and
   `world.floor-block` are restart-only (the world + generator are fixed at creation); a live
   `world.name` change is logged and ignored rather than orphaning players in the old world.
@@ -63,4 +69,4 @@ Initial build is complete and pushed to `main`: full plugin, unit tests, CI (`bu
 - No config-validation unit tests (would need MockBukkit); spawn math + cooldown are covered.
 - Not yet smoke-tested on a live 1.18.2 / latest Paper server before production use.
 
-Remote: `git@github.com:xena-studios/limbo.git` (push over gh HTTPS; SSH key isn't authorized).
+Remote: `git@github.com:xena-studios/xlimbo.git` (push over gh HTTPS; SSH key isn't authorized).

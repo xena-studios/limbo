@@ -1,1 +1,1 @@
-rootProject.name = "Limbo"
+rootProject.name = "xLimbo"

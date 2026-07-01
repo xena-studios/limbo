@@ -1,12 +1,12 @@
-# Limbo
+# xLimbo
 
 A rock-solid **fallback / limbo** server plugin for **Paper** (Pufferfish) networks. When your
-main server crashes, restarts or becomes unreachable, players routed to Limbo land in an empty
+main server crashes, restarts or becomes unreachable, players routed to xLimbo land in an empty
 void world — creative mode, flight enabled, on an unbreakable glass floor — so they stay connected
 to the network instead of being disconnected. When the main server is back, they hop straight over
 with `/join` (or automatically).
 
-Limbo is built to **never go down**: every code path fails safe. It never throws out of
+xLimbo is built to **never go down**: every code path fails safe. It never throws out of
 enable/reload, never blocks the main thread, never disables itself on a bad config value, and no
 single player action can lag, crash, grief or escape the sandbox.
 
@@ -27,7 +27,7 @@ single player action can lag, crash, grief or escape the sandbox.
 - **Optional action bar** — repeating hint (component parsed once, reused each cycle).
 - **Message control** — suppress join/quit/death broadcasts; optional custom join message and
   chat clear. All text is MiniMessage and fully configurable.
-- **`/limbo reload` / `/limbo info`** — reload re-reads and re-validates config and re-applies live.
+- **`/xlimbo reload` / `/xlimbo info`** — reload re-reads and re-validates config and re-applies live.
   A few settings are restart-only: `join-command.aliases`, `world.name`, `world.floor-y` and
   `world.floor-block` (the world/generator is fixed at creation).
 - **Exploit resistance** (all individually toggleable, safe defaults on): unbreakable floor, void
@@ -39,7 +39,7 @@ single player action can lag, crash, grief or escape the sandbox.
 
 ## Requirements
 
-- **Paper (or a fork like Pufferfish) 1.18.2 or newer.** Limbo compiles against the Paper 1.18.2
+- **Paper (or a fork like Pufferfish) 1.18.2 or newer.** xLimbo compiles against the Paper 1.18.2
   API — the oldest release that provides everything it needs without shading extra libraries
   (modern `ChunkGenerator` hooks + `BiomeProvider` from 1.17, and bundled MiniMessage/Adventure
   4.11 from 1.18.2). A plugin compiled against 1.18.2 runs on all newer versions.
@@ -50,22 +50,28 @@ single player action can lag, crash, grief or escape the sandbox.
 
 ## Install
 
-1. Grab a jar (see **Downloads** below) and drop it in your Limbo server's `plugins/` folder.
-2. Start the server once — Limbo creates the `limbo` world and writes a default `config.yml`.
-3. Edit `plugins/Limbo/config.yml` to taste, then run `/limbo reload` (most settings apply live;
+1. Grab a jar (see **Downloads** below) and drop it in your xLimbo server's `plugins/` folder.
+2. Start the server once — xLimbo creates the `xlimbo` world and writes a default `config.yml`.
+3. Edit `plugins/xLimbo/config.yml` to taste, then run `/xlimbo reload` (most settings apply live;
    aliases, `world.name`, `floor-y` and `floor-block` need a restart).
-4. Point your proxy's fallback/limbo server at this instance and set `main-server` in the config to
+4. Point your proxy's fallback/xlimbo server at this instance and set `main-server` in the config to
    the proxy name of the server you want `/join` to send players to.
 
 ### Downloads
 
-- **Latest build:** https://github.com/xena-studios/limbo/releases/latest — a rolling
-  release whose `Limbo-latest.jar` always points at the newest commit on `main`.
+- **Stable releases:** https://github.com/xena-studios/xlimbo/releases/latest — semantic-version
+  releases (`vMAJOR.MINOR.PATCH`) cut from git tags. Also published to
+  [Modrinth](https://modrinth.com/) on each release.
+- **Nightly builds:** the rolling [`nightly`](https://github.com/xena-studios/xlimbo/releases/tag/nightly)
+  pre-release always carries `xLimbo-nightly.jar`, the freshest build of `main`. Pre-release —
+  handy for testing, not for production.
 - **Per-commit builds:** every push and PR uploads the jar as a workflow artifact under the
   repository's **Actions** tab.
 
-There are no semantic-version releases: the version *is* the commit. Each jar reports its identity
-as `<yyyy.MM.dd>+<short-sha>` (in `plugin.yml`, `build-info.properties` and `/limbo info`).
+Versioning is semantic and derived from git tags. A tagged commit builds to a clean version
+(e.g. `1.2.0`); any commit after the latest tag builds to a nightly pre-release identity
+(`<version>-nightly.<n>+<short-sha>`). The exact identity lives in `plugin.yml`,
+`build-info.properties` and `/xlimbo info`.
 
 ---
 
@@ -78,7 +84,7 @@ disables itself over config.
 
 | Key | Default | Description |
 | --- | --- | --- |
-| `world.name` | `limbo` | Limbo world name (created if missing). |
+| `world.name` | `xlimbo` | xLimbo world name (created if missing). |
 | `world.floor-block` | `GLASS` | Block making up the shared floor layer. |
 | `world.floor-y` | `64` | Y of the floor; players spawn one block above. |
 | `world.auto-save` | `false` | Keep the world ephemeral (recommended). |
@@ -100,7 +106,7 @@ disables itself over config.
 | `auto-join.message` | *(set)* | Message on auto-connect (empty = none). |
 | `join-command.enabled` | `true` | Enable `/join`. |
 | `join-command.aliases` | `[server, lobby]` | Extra aliases (base `join` always exists). |
-| `join-command.permission` | `limbo.join` | Permission to use `/join`. |
+| `join-command.permission` | `xlimbo.join` | Permission to use `/join`. |
 | `join-command.cooldown-seconds` | `3` | Per-player cooldown. |
 | `join-command.message-sending` | *(set)* | Feedback; supports `<server>`. |
 | `join-command.message-cooldown` | *(set)* | Cooldown feedback; supports `<seconds>`. |
@@ -128,9 +134,9 @@ disables itself over config.
 
 | Command | Permission | Default | Description |
 | --- | --- | --- | --- |
-| `/join` (+ aliases) | `limbo.join` | everyone | Connect to the main server. |
-| `/limbo reload` | `limbo.admin` | op | Reload + re-apply config live. |
-| `/limbo info` | `limbo.admin` | op | Show build/version + runtime status. |
+| `/join` (+ aliases) | `xlimbo.join` | everyone | Connect to the main server. |
+| `/xlimbo reload` | `xlimbo.admin` | op | Reload + re-apply config live. |
+| `/xlimbo info` | `xlimbo.admin` | op | Show build/version + runtime status. |
 
 ---
 
@@ -140,7 +146,7 @@ Some performance and security tuning lives **outside** the plugin. For a fallbac
 should stay flat under load:
 
 - **`server.properties`**
-  - `view-distance=4`, `simulation-distance=4` (Limbo also sets these per-world, but the global
+  - `view-distance=4`, `simulation-distance=4` (xLimbo also sets these per-world, but the global
     default matters for any other world and for the initial spawn world).
   - `spawn-protection=0`, `allow-nether=false`.
   - **`online-mode=false` only behind a proxy** — and only with secure forwarding (below).
@@ -148,7 +154,7 @@ should stay flat under load:
   `view-distance` in step.
 - **`pufferfish.yml` / Paper's `config/paper-world-defaults.yml`** — tighten entity activation
   ranges, disable ticking far from players, and keep `max-auto-save-chunks-per-tick` low
-  (Limbo runs with autosave off anyway).
+  (xLimbo runs with autosave off anyway).
 - **Proxy forwarding security (important):** the `/join` "Connect" plugin message can be spoofed
   by clients if forwarding isn't secured. Configure **Velocity modern forwarding** (or a
   BungeeCord IP-forwarding guard / firewall so only the proxy can reach the backend) so players
@@ -160,7 +166,7 @@ should stay flat under load:
 ## How it stays fast & stable
 
 - **Immutable settings snapshot.** Config is parsed once into an immutable object (with MiniMessage
-  components pre-parsed) and swapped atomically on `/limbo reload`. No hot path — per-tick,
+  components pre-parsed) and swapped atomically on `/xlimbo reload`. No hot path — per-tick,
   per-chunk or per-event — ever reads `getConfig()` or re-parses MiniMessage.
 - **O(1) generation.** The generator writes one floor layer and disables every vanilla phase via
   the `shouldGenerate*` hooks, with a single fixed biome. Chunk cost is flat no matter how far
@@ -184,9 +190,27 @@ should stay flat under load:
 ./gradlew build
 ```
 
-Produces the shaded, runnable jar at `build/libs/Limbo-<yyyy.MM.dd>+<short-sha>.jar`. Requires a
-JDK 21 toolchain (Gradle will provision or use one). Unit tests cover the spawn-point math and
-command cooldown logic (`./gradlew test`).
+Produces the shaded, runnable jar at `build/libs/xLimbo-<version>.jar` (the version is derived
+from git tags — see **Downloads**). Requires a JDK 21 toolchain (Gradle will provision or use
+one). Unit tests cover the spawn-point math and command cooldown logic (`./gradlew test`).
+
+### Releasing
+
+Push a semantic-version tag to cut a release:
+
+```bash
+git tag v1.0.0 && git push origin v1.0.0
+```
+
+The **Release** workflow builds the tagged commit, publishes a GitHub release with the jar, and
+uploads it to Modrinth. Modrinth publishing needs two repository settings (the step skips cleanly
+if they're absent):
+
+- **`MODRINTH_TOKEN`** — a repository *secret* holding a Modrinth API token.
+- **`MODRINTH_PROJECT_ID`** — a repository *variable* with the Modrinth project id/slug.
+
+Optional variables `MODRINTH_GAME_VERSIONS` (default `1.18.2`) and `MODRINTH_LOADERS`
+(default `paper,purpur`) override the published game versions and loaders (comma-separated).
 
 ---
 
