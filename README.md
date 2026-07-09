@@ -1,4 +1,4 @@
-# xLimbo
+![xLimbo by Xena Studios, a fallback server plugin for Paper. A life-buoy icon and the xLimbo wordmark on a dark mission-control style banner with the tagline "Never drop a player again."](assets/banner.png)
 
 A rock-solid **fallback / limbo** server plugin for **Paper** (Pufferfish) networks. When your
 main server crashes, restarts or becomes unreachable, players routed to xLimbo land in an empty
