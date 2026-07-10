@@ -20,6 +20,7 @@ import co.xenastudios.xlimbo.protection.PortalProtectionListener;
 import co.xenastudios.xlimbo.protection.VoidProtectionListener;
 import co.xenastudios.xlimbo.proxy.ProxyConnector;
 import co.xenastudios.xlimbo.task.ActionBarTask;
+import co.xenastudios.xlimbo.world.LimboWorldLoadListener;
 import co.xenastudios.xlimbo.world.WorldManager;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -71,6 +72,14 @@ public final class XLimboPlugin extends JavaPlugin {
 
             this.proxyConnector.register();
             this.limboWorld = worldManager.ensureWorld(settings);
+
+            // If the world wasn't ready (it's the server's own default world, generated
+            // via bukkit.yml), finish setup when the server loads it. Registered outside
+            // registerFeatures() so a reload never tears it down.
+            if (this.limboWorld == null) {
+                getServer().getPluginManager()
+                        .registerEvents(new LimboWorldLoadListener(this), this);
+            }
 
             registerCommands();
             registerFeatures();
@@ -277,6 +286,39 @@ public final class XLimboPlugin extends JavaPlugin {
     public boolean isLimboWorld(World world) {
         World limbo = this.limboWorld;
         return limbo != null && world != null && limbo.getUID().equals(world.getUID());
+    }
+
+    /**
+     * Finish setup for a limbo world the <em>server</em> loaded (default world = limbo
+     * setup, where the world's generator is pointed at xLimbo in bukkit.yml and so it
+     * couldn't be created during {@link #onEnable()}). Called from
+     * {@link LimboWorldLoadListener}; a no-op unless {@code world} is our configured
+     * world and we haven't already cached one. Never throws.
+     */
+    public void handleWorldLoaded(World world) {
+        try {
+            if (world == null || this.limboWorld != null) {
+                return;
+            }
+            Settings s = this.settings;
+            if (s == null || !world.getName().equalsIgnoreCase(s.world().name())) {
+                return;
+            }
+            worldManager.applySettings(world, s);
+            this.limboWorld = world;
+            getLogger().info("xLimbo world '" + world.getName()
+                    + "' loaded by the server; limbo settings applied.");
+
+            // Re-arm auto-join for anyone already routed here (defensive; usually none
+            // this early). schedule() self-guards when auto-join is disabled.
+            for (Player player : getServer().getOnlinePlayers()) {
+                if (isLimboWorld(player.getWorld())) {
+                    autoJoinScheduler.schedule(player);
+                }
+            }
+        } catch (Throwable t) {
+            getLogger().log(Level.WARNING, "Failed to finish setup for a server-loaded world.", t);
+        }
     }
 
     public ProxyConnector proxyConnector() {

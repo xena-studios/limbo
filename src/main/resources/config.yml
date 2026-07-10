@@ -15,6 +15,16 @@ config-version: 1
 
 world:
   # Name of the xLimbo world. Created automatically if it does not exist.
+  #
+  # To make the server's DEFAULT world the limbo (single-world setup), set this to
+  # your default world's name (usually "world", matching level-name in
+  # server.properties) AND point its generator at xLimbo in bukkit.yml:
+  #   worlds:
+  #     world:
+  #       generator: xLimbo
+  # The server then loads that world using xLimbo's void generator, and xLimbo
+  # applies its settings once it loads. floor-y / floor-block still take effect;
+  # reset-on-startup does not apply to an already-loaded default world.
   name: "xlimbo"
   # Block that makes up the shared, unbreakable floor (one layer per chunk).
   floor-block: "GLASS"
