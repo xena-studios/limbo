@@ -59,13 +59,25 @@ public final class WorldManager {
 
             World world = Bukkit.getWorld(name);
             if (world == null) {
-                world = new WorldCreator(name)
-                        .generator(createGenerator(settings))
-                        .biomeProvider(new VoidBiomeProvider(BIOME))
-                        .environment(World.Environment.NORMAL)
-                        .type(WorldType.NORMAL)
-                        .generateStructures(false)
-                        .createWorld();
+                try {
+                    world = new WorldCreator(name)
+                            .generator(createGenerator(settings))
+                            .biomeProvider(new VoidBiomeProvider(BIOME))
+                            .environment(World.Environment.NORMAL)
+                            .type(WorldType.NORMAL)
+                            .generateStructures(false)
+                            .createWorld();
+                } catch (IllegalStateException notYet) {
+                    // The server refuses world creation during STARTUP. This happens when
+                    // our configured world IS the server's own default world (its generator
+                    // is pointed at xLimbo in bukkit.yml): the server hasn't loaded it yet
+                    // and will do so shortly using getDefaultWorldGenerator. Finish setup on
+                    // WorldLoadEvent instead (see LimboWorldLoadListener) — this is expected,
+                    // not an error.
+                    log.info("xLimbo world '" + name + "' will be loaded by the server; "
+                            + "deferring limbo setup until it loads.");
+                    return null;
+                }
             }
             if (world == null) {
                 log.severe("xLimbo world '" + name + "' could not be created.");

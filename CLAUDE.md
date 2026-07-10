@@ -64,6 +64,12 @@ semantic releases are cut by pushing a `vX.Y.Z` tag, which also publishes to Mod
   `world.floor-block` are restart-only (the world + generator are fixed at creation); a live
   `world.name` change is logged and ignored rather than orphaning players in the old world.
 - `.idea/` is untracked and gitignored.
+- Supports the "default world **is** the limbo" setup: point the default world's
+  generator at xLimbo in `bukkit.yml` and set `world.name` to it. The server can't
+  create worlds during STARTUP, so `WorldManager.ensureWorld` catches that
+  `IllegalStateException`, defers, and `LimboWorldLoadListener` finishes setup
+  (`applySettings` + cache `limboWorld`) on `WorldLoadEvent`. The load listener is
+  registered outside `registerFeatures()` so a reload never tears it down.
 
 ## Follow-ups (not required by the brief)
 - No config-validation unit tests (would need MockBukkit); spawn math + cooldown are covered.
