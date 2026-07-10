@@ -108,14 +108,16 @@ public final class WorldManager {
             world.getWorldBorder().setWarningDistance(0);
             world.getWorldBorder().setDamageAmount(0);
 
-            applyGameRules(world);
+            applyGameRules(world, settings);
             applyFootprint(world, settings);
         } catch (Throwable t) {
             log.log(Level.WARNING, "Failed applying some world settings (continuing).", t);
         }
     }
 
-    private void applyGameRules(World world) {
+    private void applyGameRules(World world, Settings settings) {
+        // Hide coordinates (and other detail) in the F3/debug screen when enabled.
+        setRule(world, GameRule.REDUCED_DEBUG_INFO, settings.world().hideCoordinates());
         setRule(world, GameRule.DO_DAYLIGHT_CYCLE, false);
         setRule(world, GameRule.DO_WEATHER_CYCLE, false);
         setRule(world, GameRule.DO_MOB_SPAWNING, false);

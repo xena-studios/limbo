@@ -50,6 +50,11 @@ world:
   view-distance: 4
   simulation-distance: 4
 
+  # Hide coordinates and other detail on players' F3/debug screen (the vanilla
+  # reducedDebugInfo gamerule). Recommended for a limbo world where coords are
+  # meaningless. Applied live on /xlimbo reload.
+  hide-coordinates: true
+
 player:
   # Put joining players into creative mode.
   set-creative: true

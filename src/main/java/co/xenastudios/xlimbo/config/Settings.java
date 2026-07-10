@@ -35,7 +35,8 @@ public record Settings(
             double borderSize,
             int spawnRadius,
             int viewDistance,
-            int simulationDistance
+            int simulationDistance,
+            boolean hideCoordinates
     ) {}
 
     public record Player(

@@ -105,7 +105,8 @@ public final class ConfigLoader {
                 clampDouble("world.border.size", 10000, 16, 59_999_968),
                 Math.max(0, intVal("world.border.spawn-radius", 4000)),
                 clampViewDistance("world.view-distance", 4),
-                clampViewDistance("world.simulation-distance", 4)
+                clampViewDistance("world.simulation-distance", 4),
+                bool("world.hide-coordinates", true)
         );
         world = clampSpawnToBorder(world);
 
@@ -185,7 +186,8 @@ public final class ConfigLoader {
             warn("world.border.spawn-radius", w.spawnRadius(), maxSpawn,
                     "must stay inside the border with a buffer");
             return new Settings.World(w.name(), w.floorBlock(), w.floorY(), w.autoSave(),
-                    w.resetOnStartup(), w.borderSize(), maxSpawn, w.viewDistance(), w.simulationDistance());
+                    w.resetOnStartup(), w.borderSize(), maxSpawn, w.viewDistance(), w.simulationDistance(),
+                    w.hideCoordinates());
         }
         return w;
     }
@@ -309,7 +311,7 @@ public final class ConfigLoader {
      */
     public static Settings defaults() {
         Settings.World world = new Settings.World(
-                "xlimbo", Material.GLASS, 64, false, false, 10000, 4000, 4, 4);
+                "xlimbo", Material.GLASS, 64, false, false, 10000, 4000, 4, 4, true);
         Settings.Player player = new Settings.Player(true, true);
         Settings.Join join = new Settings.Join(true, null, false);
         Settings.Messages messages = new Settings.Messages(true, true);
